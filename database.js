@@ -1,6 +1,12 @@
 // within a session, we associate tab IDs with node IDs
 tabassocs = {}
 
+function showerrors() {
+    if (typeof chrome.runtime.lastError != "undefined") {
+        console.log("!!! DB ERROR adding node: " + chrome.runtime.lastError)
+    }
+}
+
 /* add node to history tree
  *
  * url = the url of the new page
@@ -11,29 +17,52 @@ tabassocs = {}
  * the return value is the SHA1 hash associated with this node
  */
 function addNode(url, time, newtabid, origtabid) {
-    
+    nodeid = Sha1.hash(url + "\0" + time.toString()) // a hash of the url and the time
+    tabassocs[newtabid] = nodeid
+    chrome.storage.sync.set({nodeid : {
+        "url" : url,
+        "time" : time,
+        "children" : []
+    }}, showerrors)
+
+    if (origtabid != null) {
+        orignodeid = tabassocs[origtabid] // TODO check if this doesn't exist
+        orignode = chrome.storage.sync.get(orignodeid, function (items) {
+            items[orignodeid].children.push(nodeid)
+            chrome.storage.sync.set({orignodeid : items[orignodeid]}, showerrors)
+        }) // TODO asynchronous callbacks :/
+    } else {
+        chrome.storage.sync.get("rootlist", function (items) {
+            items["rootlist"].push(nodeid)
+            chrome.storage.sync.set({"rootlist" : items["rootlist"]}, showerrors)
+        }
 }
 
-/* get the information associated with this node
- * returns a JSON object:
+/* get the information associated with the node that has the given ID
+ * unfortunately the storage API is asynchronous so you must pass in a handler
+ * handler is passed a JSON object:
  * {
  *   "url": the url,
  *   "time": timestamp,
  *   "children": [a list of child nodes]
  * }
  */
-function getNode(node) {
-    
+function getNode(node, handler) {
+    chrome.storage.sync.get(node, function (items) {
+        handler(items[node])
+    }
 }
 
 /* get roots of browsing tree
- * returns a list of parentless nodes
+ * handler is passed a list of parentless nodes
  */
-function getRoots() {
-
+function getRoots(handler) {
+    chrome.storage.sync.get("rootlist", function (items) {
+        handler(items["rootlist"])
+    }
 }
 
 function tabClose(tabid) {
-
+    delete tabassocs[tabid]
 }
 
