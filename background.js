@@ -26,10 +26,16 @@ chrome.webNavigation.onCommitted.addListener(
 				if (linkTransitions.indexOf(type) != -1)		// user clicked link
 				{
 					console.log("LINK ACTION")
+					chrome.tabs.get(details.tabId, function(tab){ 
+						addNode(details.url, details.timeStamp, tab.openerTabId, tab.id)
+					} )
 				}
 				else if (rootTransitions.indexOf(type) != -1)	// user typed something into the box
 				{
 					console.log("ROOT ACTION")
+					chrome.tabs.get(details.tabId, function(tab){ 
+						addNode(details.url, details.timeStamp, null, tab.id)
+					} )
 				}
 
 				//handleUserAction(details.tabId)
@@ -44,6 +50,7 @@ function tabRemoved(tabId)
 {
 	console.log("~~~~~~~~~~~~~~~~~~ TAB REMOVED ~~~~~~~~~~~~~~~~~~")
 	console.log("Tab Removed: ".concat(tabId))
+	tabClosed(tabId)
 
 }
 chrome.tabs.onRemoved.addListener(tabRemoved)
