@@ -21,6 +21,6 @@
   },
 
   "background": {
-    "scripts": ["background.js", "database.js"]
+    "scripts": ["background.js", "database.js", "Sha1.js"]
   }
 }

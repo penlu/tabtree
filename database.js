@@ -11,7 +11,7 @@ tabassocs = {}
  * the return value is the SHA1 hash associated with this node
  */
 function addNode(url, time, newtabid, origtabid) {
-    // orig = the SHA1 hash associated with the originating page/timestamp
+    
 }
 
 /* get the information associated with this node
