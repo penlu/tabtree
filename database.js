@@ -26,6 +26,7 @@ function addNode(url, time, newtabid, origtabid) {
     }}, showerrors)
 
     if (origtabid != null) {
+        console.log("DB ADDNODE: origtabid is " + origtabid)
         orignodeid = tabassocs[origtabid] // TODO check if this doesn't exist
         orignode = chrome.storage.sync.get(orignodeid, function (items) {
             items[orignodeid].children.push(nodeid)
@@ -33,9 +34,13 @@ function addNode(url, time, newtabid, origtabid) {
         }) // TODO asynchronous callbacks :/
     } else {
         chrome.storage.sync.get("rootlist", function (items) {
+            if (typeof items["rootlist"] == "undefined") {
+                items["rootlist"] = []
+            }
             items["rootlist"].push(nodeid)
             chrome.storage.sync.set({"rootlist" : items["rootlist"]}, showerrors)
-        }
+        })
+    }
 }
 
 /* get the information associated with the node that has the given ID
@@ -50,7 +55,7 @@ function addNode(url, time, newtabid, origtabid) {
 function getNode(node, handler) {
     chrome.storage.sync.get(node, function (items) {
         handler(items[node])
-    }
+    })
 }
 
 /* get roots of browsing tree
@@ -59,10 +64,10 @@ function getNode(node, handler) {
 function getRoots(handler) {
     chrome.storage.sync.get("rootlist", function (items) {
         handler(items["rootlist"])
-    }
+    })
 }
 
-function tabClose(tabid) {
+function tabClosed(tabid) {
     delete tabassocs[tabid]
 }
 
