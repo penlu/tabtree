@@ -33,9 +33,7 @@ chrome.webNavigation.onCommitted.addListener(
 				else if (rootTransitions.indexOf(type) != -1)	// user typed something into the box
 				{
 					console.log("ROOT ACTION")
-					chrome.tabs.get(details.tabId, function(tab){ 
-						addNode(details.url, details.timeStamp, null, tab.id)
-					} )
+					addNode(details.url, details.timeStamp, null, details.tabId)
 				}
 
 				//handleUserAction(details.tabId)
