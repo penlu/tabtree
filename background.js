@@ -15,26 +15,28 @@ var navigationEventType = {}
 chrome.webNavigation.onCommitted.addListener(
 	function(details)
 	{
-		console.log("============================== NEW NODE ==============================")
-		console.log("URL: ".concat(details.url))
-
 		var type = details.transitionType
-		console.log("Type: ".concat(type.toUpperCase()))
+		if(type !== "auto_subframe") {
+			console.log("============================== NEW NODE ==============================")
+			console.log("URL: ".concat(details.url))
 
-		if (details.transitionQualifiers.indexOf("forward_back") == -1)	// user didn't use forward/back arrows
-		{
-			if (linkTransitions.indexOf(type) != -1)		// user clicked link
-			{
-				console.log("LINK ACTION")
-				navigationEventType[details.tabId] = "link"
-			}
-			else if (rootTransitions.indexOf(type) != -1)	// user typed something into the box
-			{
-				console.log("ROOT ACTION")
-				navigationEventType[details.tabId] = "root"
-			}
+			console.log("Type: ".concat(type))
 
-			handleUserAction(details.tabId)
+			if (details.transitionQualifiers.indexOf("forward_back") == -1)	// user didn't use forward/back arrows
+			{
+				if (linkTransitions.indexOf(type) != -1)		// user clicked link
+				{
+					console.log("LINK ACTION")
+					navigationEventType[details.tabId] = "link"
+				}
+				else if (rootTransitions.indexOf(type) != -1)	// user typed something into the box
+				{
+					console.log("ROOT ACTION")
+					navigationEventType[details.tabId] = "root"
+				}
+
+				handleUserAction(details.tabId)
+			}
 		}
 	}
 )
@@ -45,16 +47,18 @@ var tabEventUrl = {}
 chrome.tabs.onUpdated.addListener(
 	function(tabId, changeInfo, tab)
 	{
-		console.log("~~~~~~~~~~~~~~~~~~ TAB UPDATED ~~~~~~~~~~~~~~~~~~")
-		console.log("Tab URL: ".concat(changeInfo.url))
+		if(changeInfo.url !== undefined) {
+			console.log("~~~~~~~~~~~~~~~~~~ TAB UPDATED ~~~~~~~~~~~~~~~~~~")
+			console.log("Tab URL: ".concat(changeInfo.url))
 
-		if (typeof changeInfo.url !== "undefined")
-		{
-			tabEventUrl[tabId] = changeInfo.url
+			if (typeof changeInfo.url !== "undefined")
+			{
+				tabEventUrl[tabId] = changeInfo.url
+			}
+
+			// attempt to handle an action
+			handleUserAction(tabId)
 		}
-
-		// attempt to handle an action
-		handleUserAction(tabId)
 	}
 )
 
