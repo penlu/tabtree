@@ -1,0 +1,26 @@
+{
+  "manifest_version": 2,
+
+  "name": "Tab Tree",
+  "description": "Tree based internet history, a la the trails in Vannevar Bush's As We May Think",
+  "version": "1.0",
+
+  "icons": {
+    "475": "tree.png"
+  },
+
+  "permissions": [
+    "webNavigation",
+    "storage",
+    "tabs"
+  ],
+
+  "browser_action": {
+    //"default_icon": "tree.png"
+    //"default_popup": "popup.html"
+  },
+
+  "background": {
+    "page": "background.html"
+  }
+}
