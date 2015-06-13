@@ -16,7 +16,7 @@ function showerrors() {
  *
  * the return value is the SHA1 hash associated with this node
  */
-function addNode(url, time, newtabid, origtabid) {
+function addNode(url, time, origtabid, newtabid) {
     nodeid = Sha1.hash(url + "\0" + time.toString()) // a hash of the url and the time
     tabassocs[newtabid] = nodeid
     chrome.storage.sync.set({nodeid : {
