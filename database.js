@@ -1,9 +1,12 @@
 // within a session, we associate tab IDs with node IDs
 tabassocs = {}
 
-function showerrors() {
-    if (typeof chrome.runtime.lastError != "undefined") {
-        console.log("!!! DB ERROR adding node: " + chrome.runtime.lastError)
+function showerrors(name) {
+    return function () {
+        console.log("DB storage for " + name + " completed")
+        if (typeof chrome.runtime.lastError != "undefined") {
+            console.log("!!! DB ERROR adding node: " + chrome.runtime.lastError)
+        }
     }
 }
 
@@ -18,19 +21,24 @@ function showerrors() {
  */
 function addNode(url, time, origtabid, newtabid) {
     nodeid = Sha1.hash(url + "\0" + time.toString()) // a hash of the url and the time
-    tabassocs[newtabid] = nodeid
-    chrome.storage.sync.set({nodeid : {
+    nodeinfo = {}
+    nodeinfo[nodeid] = {
         "url" : url,
         "time" : time,
         "children" : []
-    }}, showerrors)
+    }
+    chrome.storage.sync.set(nodeinfo, showerrors(nodeid))
 
     if (origtabid != null) {
-        console.log("DB ADDNODE: origtabid is " + origtabid)
+        if (origtabid == 32) {
+            origtabid = newtabid
+        }
         orignodeid = tabassocs[origtabid] // TODO check if this doesn't exist
+        console.log("DB ADDNODE: origtabid is " + origtabid + " with node " + orignodeid)
         orignode = chrome.storage.sync.get(orignodeid, function (items) {
+            console.log("DB STORAGE get node for " + orignodeid + " got " + Object.keys(items))
             items[orignodeid].children.push(nodeid)
-            chrome.storage.sync.set({orignodeid : items[orignodeid]}, showerrors)
+            chrome.storage.sync.set({orignodeid : items[orignodeid]}, showerrors(orignodeid))
         }) // TODO asynchronous callbacks :/
     } else {
         chrome.storage.sync.get("rootlist", function (items) {
@@ -38,9 +46,10 @@ function addNode(url, time, origtabid, newtabid) {
                 items["rootlist"] = []
             }
             items["rootlist"].push(nodeid)
-            chrome.storage.sync.set({"rootlist" : items["rootlist"]}, showerrors)
+            chrome.storage.sync.set({"rootlist" : items["rootlist"]}, showerrors("rootlist"))
         })
     }
+    tabassocs[newtabid] = nodeid
 }
 
 /* get the information associated with the node that has the given ID
