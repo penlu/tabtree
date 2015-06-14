@@ -63,3 +63,8 @@ chrome.tabs.onActivated.addListener(
 		activeTab = activeInfo.tabId
 	}
 )
+
+chrome.browserAction.onClicked.addListener(function(tab) {
+	chrome.tabs.create({'url': chrome.extension.getURL('history.html')}, function(tab) {
+	});
+});

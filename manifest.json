@@ -16,8 +16,8 @@
   ],
 
   "browser_action": {
-    //"default_icon": "tree.png"
-    //"default_popup": "popup.html"
+    // "default_icon": "tree.png",
+    // "default_popup": "popup.html"
   },
 
   "background": {
