@@ -38,7 +38,9 @@ function addNode(url, time, origtabid, newtabid) {
         orignode = chrome.storage.sync.get(orignodeid, function (items) {
             console.log("DB STORAGE get node for " + orignodeid + " got " + Object.keys(items))
             items[orignodeid].children.push(nodeid)
-            chrome.storage.sync.set({orignodeid : items[orignodeid]}, showerrors(orignodeid))
+            neworignodeinfo = {}
+            neworignodeinfo[orignodeid] = items[orignodeid]
+            chrome.storage.sync.set(neworignodeinfo, showerrors(orignodeid))
         }) // TODO asynchronous callbacks :/
     } else {
         chrome.storage.sync.get("rootlist", function (items) {
